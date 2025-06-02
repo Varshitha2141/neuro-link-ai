@@ -4,3 +4,10 @@
   events:
   - type: PUSH
   fail_on_prepare_env_warning: true
+  actions:
+  - action: Run Docker Container
+    type: RUN_DOCKER_CONTAINER
+    docker_image_name: image1
+    docker_image_tag: latest
+    mount_filesystem_disable: true
+    volume_mappings: []
