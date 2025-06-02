@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuro-link-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neuro-link-frontend
+  template:
+    metadata:
+      labels:
+        app: neuro-link-frontend
+    spec:
+      containers:
+      - name: neuro-link-frontend
+        image: varshh21/neuro-link-frontend:latest
+        ports:
+        - containerPort: 3000  # or your frontend port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neuro-link-frontend-service
+spec:
+  type: NodePort
+  selector:
+    app: neuro-link-frontend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 3000
+    nodePort: 30080

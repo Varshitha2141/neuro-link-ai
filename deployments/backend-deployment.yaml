@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: neuro-link-backend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: neuro-link-backend
+  template:
+    metadata:
+      labels:
+        app: neuro-link-backend
+    spec:
+      containers:
+      - name: neuro-link-backend
+        image: varshh21/neuro-link-backend:latest
+        ports:
+        - containerPort: 5000  # or your backend port
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: neuro-link-backend-service
+spec:
+  type: NodePort
+  selector:
+    app: neuro-link-backend
+  ports:
+  - protocol: TCP
+    port: 80
+    targetPort: 5000
+    nodePort: 30081
