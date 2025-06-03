@@ -1,27 +1,47 @@
-image: docker:20.10.16
-
-services:
-  - docker:dind
-
 stages:
   - build
-  - deploy
+  - push
 
 variables:
   DOCKER_DRIVER: overlay2
+  IMAGE_FRONTEND: varshh21/neuro-link-frontend:latest
+  IMAGE_BACKEND: varshh21/neuro-link-backend:latest
 
 before_script:
-  - docker info
+  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
 
-build_images:
+build-frontend:
   stage: build
   script:
-    - docker build -t $CI_REGISTRY_IMAGE/frontend ./frontend
-    - docker build -t $CI_REGISTRY_IMAGE/backend ./backend
+    - cd frontend
+    - npm install
+    - docker build -t $IMAGE_FRONTEND .
+  only:
+    - main
 
-deploy:
-  stage: deploy
+build-backend:
+  stage: build
   script:
-    - echo "$CI_JOB_TOKEN" | docker login -u gitlab-ci-token --password-stdin $CI_REGISTRY
-    - docker push $CI_REGISTRY_IMAGE/frontend
-    - docker push $CI_REGISTRY_IMAGE/backend
+    - cd backend
+    - npm install
+    - docker build -t $IMAGE_BACKEND .
+  only:
+    - main
+
+push-frontend:
+  stage: push
+  script:
+    - docker push $IMAGE_FRONTEND
+  only:
+    - main
+  dependencies:
+    - build-frontend
+
+push-backend:
+  stage: push
+  script:
+    - docker push $IMAGE_BACKEND
+  only:
+    - main
+  dependencies:
+    - build-backend
