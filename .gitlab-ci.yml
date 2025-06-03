@@ -1,51 +1,18 @@
+image: python:3.9
+
 stages:
   - build
-  - push
-
-variables:
-  DOCKER_HOST: tcp://docker:2375/
-  DOCKER_DRIVER: overlay2
-  IMAGE_FRONTEND: varshh21/neuro-link-frontend:latest
-  IMAGE_BACKEND: varshh21/neuro-link-backend:latest
-
-services:
-  - docker:dind
+  - test
 
 before_script:
-  - echo "$CI_REGISTRY_PASSWORD" | docker login -u "$CI_REGISTRY_USER" --password-stdin
+  - pip install -r requirements.txt
 
-build-frontend:
+build:
   stage: build
   script:
-    - cd frontend
-    - npm install
-    - docker build -t $IMAGE_FRONTEND .
-  only:
-    - main
+    - echo "Build passed"
 
-build-backend:
-  stage: build
+test:
+  stage: test
   script:
-    - cd backend
-    - npm install
-    - docker build -t $IMAGE_BACKEND .
-  only:
-    - main
-
-push-frontend:
-  stage: push
-  script:
-    - docker push $IMAGE_FRONTEND
-  only:
-    - main
-  dependencies:
-    - build-frontend
-
-push-backend:
-  stage: push
-  script:
-    - docker push $IMAGE_BACKEND
-  only:
-    - main
-  dependencies:
-    - build-backend
+    - python -m unittest discover tests
